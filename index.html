@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oplan Kalawakan - Cosmic Arcade</title>
+    <style>
+        :root {
+            --ph-blue: #0038a8;
+            --ph-red: #ce1126;
+            --ph-gold: #fcd116;
+            --deep-space: #050515;
+            --neon-cyan: #00f0ff;
+            --card-bg: rgba(15, 20, 45, 0.80);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--deep-space);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+
+        .nebula-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(0, 56, 168, 0.25) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(206, 17, 38, 0.25) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(252, 209, 22, 0.1) 0%, transparent 60%);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 1. Game Logo Container */
+        .logo-wrapper {
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-logo {
+            max-width: 180px;
+            height: auto;
+            border-radius: 12px;
+            filter: drop-shadow(0 0 15px rgba(252, 209, 22, 0.6));
+            transition: transform 0.3s ease;
+        }
+
+        .game-logo:hover {
+            transform: scale(1.05);
+        }
+
+        h1 {
+            font-size: 3.2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--ph-gold), #fff, var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 25px rgba(252, 209, 22, 0.5);
+        }
+
+        .tagline {
+            color: var(--neon-cyan);
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            z-index: 1;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 2px solid rgba(252, 209, 22, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6),
+                        inset 0 0 15px rgba(0, 240, 255, 0.15);
+        }
+
+        .card h2 {
+            color: var(--ph-gold);
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--ph-red);
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        p, li {
+            color: #d1d5db;
+            line-height: 1.6;
+            font-size: 1.05rem;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        ul li {
+            margin-bottom: 0.8rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        ul li::before {
+            content: "✦";
+            color: var(--ph-gold);
+            position: absolute;
+            left: 0;
+        }
+
+        /* 6. Screenshot Gallery Grid */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .gallery-item {
+            position: relative;
+            border: 1px solid var(--neon-cyan);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+            aspect-ratio: 16 / 9;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: rgba(5, 5, 21, 0.85);
+            color: #fff;
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 4px 0;
+            border-top: 1px solid var(--ph-gold);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .btn-play {
+            background: linear-gradient(45deg, var(--ph-blue), var(--neon-cyan));
+            color: white;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            border: none;
+        }
+
+        .btn-download {
+            background: linear-gradient(45deg, var(--ph-red), var(--ph-gold));
+            color: white;
+            box-shadow: 0 0 20px rgba(206, 17, 38, 0.4);
+            border: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 0 30px rgba(252, 209, 22, 0.8);
+        }
+
+        .badge-grid {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .badge {
+            background: rgba(0, 56, 168, 0.4);
+            border: 1px solid var(--neon-cyan);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #fff;
+        }
+
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.9rem;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="starfield"></canvas>
+    <div class="nebula-overlay"></div>
+
+    <header>
+        <!-- 1. Game Logo (Replace 'logo.png' with your file when ready) -->
+        <div class="logo-wrapper">
+            <img src="logo.png" 
+                 alt="Oplan Kalawakan Logo" 
+                 class="game-logo" 
+                 onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'180\' height=\'180\' viewBox=\'0 0 180 180\'><rect width=\'100%\' height=\'100%\' fill=\'%230038a8\' rx=\'20\'/><circle cx=\'90\' cy=\'90\' r=\'60\' fill=\'none\' stroke=\'%23fcd116\' stroke-width=\'4\'/><text x=\'50%\' y=\'45%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23fcd116\' font-size=\'38\'>🚀</text><text x=\'50%\' y=\'72%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23ffffff\' font-family=\'sans-serif\' font-size=\'14\' font-weight=\'bold\'>YOUR LOGO</text></svg>'">
+        </div>
+        
+        <!-- 2. Game Title -->
+        <div class="title-container">
+            <h1>Oplan Kalawakan</h1>
+            <div class="tagline">🇵🇭 Galactic Defense Force 🚀</div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- 3. Game Description & 4. Game Concept -->
+        <section class="card">
+            <h2>☀️ About the Game</h2>
+            <p style="margin-bottom: 0.8rem;"><strong>Game Description:</strong> <strong>Oplan Kalawakan</strong> is an action-packed retro space shooter where players navigate through intense celestial battlegrounds to protect our star systems against relentless cosmic invasions.</p>
+            <p><strong>Game Concept:</strong> Combining classic arcade shoot-'em-up mechanics with a vibrant space-faring aesthetic, players pilot customized spacecraft through dynamic boss battles, survival waves, and co-op combat challenges.</p>
+            
+            <div class="badge-grid">
+                <span class="badge">🇵🇭 Pinoy Theme</span>
+                <span class="badge">🛸 Custom Rocket Skins</span>
+                <span class="badge">🕹️ Single & 2-Player Co-Op</span>
+                <span class="badge">👾 Boss Battles</span>
+            </div>
+        </section>
+
+        <!-- 5. Filipino Theme -->
+        <section class="card">
+            <h2>🌌 Filipino Cultural Theme</h2>
+            <ul>
+                <li><strong>Cultural Visuals:</strong> Dynamic backgrounds styled after Manila Bay sunsets, tropical twilight, and the iconic Three Stars and the Sun[cite: 1].</li>
+                <li><strong>Mythological Bosses:</strong> Face legendary cosmic monsters inspired by Philippine folklore, including Spacebalang and the planet-devouring Bakunawa[cite: 1].</li>
+                <li><strong>Iconic Pinoy Ships:</strong> Pilot culturally customized spacecraft skins such as the <em>Bakbakan Jeepney</em>, <em>Trike Trooper</em>, <em>Balangay Navigator</em>, and <em>PAL Jet</em>[cite: 1].</li>
+            </ul>
+        </section>
+
+        <!-- 6. Game Screenshots (Replace 'screenshot1.png', etc., with your files when ready) -->
+        <section class="card">
+            <h2>📸 Game Screenshots</h2>
+            <div class="gallery-grid">
+                <!-- Screenshot 1 -->
+                <div class="gallery-item">
+                    <img src="screenshot1.png" 
+                         alt="Gameplay Screenshot 1" 
+                         onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'225\' viewBox=\'0 0 400 225\'><rect width=\'100%\' height=\'100%\' fill=\'%23050515\'/><rect x=\'5\' y=\'5\' width=\'390\' height=\'215\' fill=\'none\' stroke=\'%2300f0ff\' stroke-width=\'2\' rx=\'5\'/><text x=\'50%\' y=\'45%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%2300f0ff\' font-size=\'32\'>🎮</text><text x=\'50%\' y=\'65%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23ffffff\' font-family=\'sans-serif\' font-size=\'14\'>Screenshot 1 (screenshot1.png)</text></svg>'">
+                    <div class="gallery-caption">Battle Action</div>
+                </div>
+
+                <!-- Screenshot 2 -->
+                <div class="gallery-item">
+                    <img src="screenshot2.png" 
+                         alt="Gameplay Screenshot 2" 
+                         onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'225\' viewBox=\'0 0 400 225\'><rect width=\'100%\' height=\'100%\' fill=\'%23050515\'/><rect x=\'5\' y=\'5\' width=\'390\' height=\'215\' fill=\'none\' stroke=\'%23ce1126\' stroke-width=\'2\' rx=\'5\'/><text x=\'50%\' y=\'45%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23ce1126\' font-size=\'32\'>👾</text><text x=\'50%\' y=\'65%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23ffffff\' font-family=\'sans-serif\' font-size=\'14\'>Screenshot 2 (screenshot2.png)</text></svg>'">
+                    <div class="gallery-caption">Boss Fight</div>
+                </div>
+
+                <!-- Screenshot 3 -->
+                <div class="gallery-item">
+                    <img src="screenshot3.png" 
+                         alt="Gameplay Screenshot 3" 
+                         onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'225\' viewBox=\'0 0 400 225\'><rect width=\'100%\' height=\'100%\' fill=\'%23050515\'/><rect x=\'5\' y=\'5\' width=\'390\' height=\'215\' fill=\'none\' stroke=\'%23fcd116\' stroke-width=\'2\' rx=\'5\'/><text x=\'50%\' y=\'45%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23fcd116\' font-size=\'32\'>🛸</text><text x=\'50%\' y=\'65%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23ffffff\' font-family=\'sans-serif\' font-size=\'14\'>Screenshot 3 (screenshot3.png)</text></svg>'">
+                    <div class="gallery-caption">Main Menu</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. Play/Access Option & 9. Download Option -->
+        <section class="card" style="text-align: center;">
+            <h2>🚀 Access & Download</h2>
+            <p>Ready to join the defense fleet? Launch directly in your browser or download the full game package below!</p>
+            
+            <div class="action-buttons">
+                <!-- Play/Access Option Link -->
+                <a href="#play" class="btn btn-play">🎮 Play Online (WebGL / Browser)</a>
+                <!-- Download Option Link -->
+                <a href="G9_OPLAN_KALAWAKAN.py" class="btn btn-download" download>💾 Download Game (.py / .zip)</a>
+            </div>
+        </section>
+
+        <!-- 7. Developer Information -->
+        <section class="card">
+            <h2>👨‍💻 Developer Info</h2>
+            <p style="margin-bottom: 0.5rem;"><strong>Project:</strong> Python Game Enhancement Project[cite: 1]</p>
+            <p style="margin-bottom: 1rem;"><strong>Course / Section:</strong> BSIT - Computer Programming 1[cite: 1]</p>
+            
+            <h3 style="color: var(--neon-cyan); font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 0.8rem; text-transform: uppercase;">
+                GROUP 9 - DEVELOPERS
+            </h3>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                <div style="background: rgba(0, 56, 168, 0.2); border-left: 4px solid var(--ph-gold); padding: 0.8rem; border-radius: 4px;">
+                    <p style="color: var(--ph-gold); font-size: 0.9rem; font-weight: bold;">TEAM LEADER</p>
+                    <p style="color: #fff; font-size: 1.05rem;">Templora, Kevin James</p>
+                </div>
+
+                <div style="background: rgba(0, 56, 168, 0.2); border-left: 4px solid var(--neon-cyan); padding: 0.8rem; border-radius: 4px;">
+                    <p style="color: var(--neon-cyan); font-size: 0.9rem; font-weight: bold;">ASSISTANT PROGRAMMER</p>
+                    <p style="color: #fff; font-size: 1.05rem;">Calo, Mary Hanzel May</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.2rem; background: rgba(255, 255, 255, 0.03); padding: 1rem; border-radius: 8px;">
+                <p style="color: var(--ph-gold); font-size: 0.9rem; font-weight: bold; margin-bottom: 0.5rem;">TEAM MEMBERS</p>
+                <ul style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem; padding-left: 0;">
+                    <li>Amor, Norvin</li>
+                    <li>Broca, Andrew</li>
+                    <li>Tambasacan, Myra</li>
+                    <li>Tutor, Marielle</li>
+                </ul>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>© 2026 Oplan Kalawakan Project | Powered by Pygame & Python[cite: 1]</p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+
+        let stars = [];
+        const numStars = 150;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        for (let i = 0; i < numStars; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2,
+                speed: Math.random() * 1.5 + 0.3,
+                opacity: Math.random()
+            });
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            stars.forEach(star => {
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                star.y += star.speed;
+
+                if (star.y > canvas.height) {
+                    star.y = 0;
+                    star.x = Math.random() * canvas.width;
+                }
+            });
+
+            requestAnimationFrame(animateStars);
+        }
+
+        animateStars();
+    </script>
+</body>
+</html>
