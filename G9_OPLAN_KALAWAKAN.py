@@ -220,8 +220,8 @@ class SoundFX:
                 pass
 
 class MusicPlayer:
-    EXTERNAL_NAMES = ("bg_music.ogg", "bg_music.mp3", "bg_music.wav", "music.ogg", "music.mp3")
-    LEVEL_MUSIC_EXTS = ("mp3", "ogg", "wav")
+    EXTERNAL_NAMES = ("bg_music.ogg", "bg_music.wav", "music.ogg")
+    LEVEL_MUSIC = ("ogg",)
     BAND_SIZE = 3  # how many levels share one "set" track before switching
 
     def __init__(self):
